@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Angular Bootstrap Multiselect Test</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+</head>
+<body ng-app="testApp">
+
+<div class="container" ng-controller="TestController">
+
+    <h3>Test Async Data source</h3>
+
+    <form name="asyncTest">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <pre>Model value: {{selectedItems}}</pre>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <multiselect ng-model="selectedItems" options="lookup" search-filter="searchFilter"
+                                show-search="true" id-prop="id" display-prop="title"></multiselect>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-success" ng-click="saveSelectedItems()">Save Selections</button>
+                    <button type="button" class="btn btn-danger" ng-click="clearSelectedItems()">Clear Selections</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/angular-local-storage/dist/angular-local-storage.min.js"></script>
+<script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+<script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+<script src="../../dist/angular-bootstrap-multiselect.js"></script>
+<script>
+    angular.module('testApp', ['btorfs.multiselect', 'LocalStorageModule']);
+    angular.module('testApp').controller('TestController', ['$scope', '$http', 'localStorageService', function ($scope, $http, localStorage) {
+        $scope.lookup = function(searchFilter) {
+            var url = 'https://jsonplaceholder.typicode.com/posts?_sort=title&_page=1&_limit=20'
+            if (searchFilter){
+                url += '&title_like=' + searchFilter;
+            }
+            return $http.get(url)
+                .then(function (response) {
+                    var items = [];
+                    items.push({ id: '0', title: 'Uncategorized' });
+                    response.data.forEach(function(o) {
+                        items.push({id: o.id, title: o.title.substring(0, 10)})
+                    }, this);
+
+                    return items;
+                });
+        }
+
+        $scope.saveSelectedItems = function() {
+            $scope.clearSelectedItems();
+            localStorage.set('selectedItems', JSON.stringify($scope.selectedItems));
+        }
+
+        $scope.clearSelectedItems = function(){
+            $scope.selectedItems = [];
+            localStorage.remove('selectedItems');
+        }
+
+        function loadSelectedItems() {
+            var selectedItems = JSON.parse(localStorage.get('selectedItems')) || [];
+            $scope.selectedItems = [];
+            selectedItems.forEach(function(o) {
+                $scope.selectedItems.push(o);
+            }, this);
+        }
+
+        loadSelectedItems();
+    }]);
+</script>
+</body>
+</html>

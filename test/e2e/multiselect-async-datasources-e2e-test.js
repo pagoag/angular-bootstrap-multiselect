@@ -12,19 +12,19 @@ describe('Multiselect, using string models, ', function () {
         var unselectedItems = form.all(by.tagName('li')).all(by.className('item-unselected'));
         expect(unselectedItems.count()).toBe(0);
         var selectedItems = form.all(by.tagName('li')).all(by.className('item-selected'));
-        expect(selectedItems.count()).toBe(0);
+        expect(selectedItems.count()).toBe(4);
 
         form.element(by.model('searchFilter')).sendKeys('FOO');
 
         unselectedItems = form.all(by.tagName('li')).all(by.className('item-unselected'));
         expect(unselectedItems.count()).toBe(4);
-        expect(unselectedItems.get(0).getInnerHtml()).toContain('FOO1');
+        expect(unselectedItems.get(0).getAttribute("innerHTML")).toContain('FOO1');
 
         form.element(by.model('searchFilter')).sendKeys('BAR');
 
         unselectedItems = form.all(by.tagName('li')).all(by.className('item-unselected'));
         expect(unselectedItems.count()).toBe(4);
-        expect(unselectedItems.get(0).getInnerHtml()).toContain('FOOBAR1');
+        expect(unselectedItems.get(0).getAttribute("innerHTML")).toContain('FOOBAR1');
     });
 
 });

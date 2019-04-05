@@ -30,7 +30,7 @@
         <li ng-show="showSearch">
             <div class="dropdown-header">
                 <input type="text" class="form-control input-sm" style="width: 100%;"
-                       ng-model="searchFilter" placeholder="{{labels.search || 'Search...'}}" ng-change="updateOptions()"/>
+                       ng-model="searchFilter" placeholder="{{labels.search || 'Search...'}}" ng-change="updateOptions(searchFilter)" debounce="250"/>
             </div>
         </li>
 

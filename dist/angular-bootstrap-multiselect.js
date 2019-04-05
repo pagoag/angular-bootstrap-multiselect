@@ -70,7 +70,7 @@
                         if ($scope.selectedOptions) {
                             $scope.selectedOptions = [];
                         }
-                        $scope.unselectedOptions = $scope.resolvedOptions.slice(); // Take a copy
+                        $scope.unselectedOptions = angular.copy($scope.resolvedOptions);
                     } else {
                         $scope.selectedOptions = $scope.resolvedOptions.filter(function (el) {
                             var id = $scope.getId(el);
@@ -95,7 +95,7 @@
                 };
 
                 $ngModelCtrl.$render = function () {
-                    updateSelectionLists();
+                    $scope.updateOptions();
                 };
 
                 $ngModelCtrl.$viewChangeListeners.push(function () {
@@ -111,7 +111,9 @@
                 };
 
                 var watcher = $scope.$watch('selectedOptions', function () {
-                    $ngModelCtrl.$setViewValue(angular.copy($scope.selectedOptions));
+                    if ($scope.selectedOptions){
+                        $ngModelCtrl.$setViewValue(angular.copy($scope.selectedOptions));
+                    }
                 }, true);
 
                 $scope.$on('$destroy', function () {
@@ -207,9 +209,9 @@
                     return false;
                 };
 
-                $scope.updateOptions = function () {
+                $scope.updateOptions = function (searchFilter) {
                     if (typeof $scope.options === 'function') {
-                        $scope.options().then(function (resolvedOptions) {
+                        $scope.options(searchFilter).then(function (resolvedOptions) {
                             $scope.resolvedOptions = resolvedOptions;
                             updateSelectionLists();
                         });
@@ -221,6 +223,11 @@
                 // all elements, even if the limit is reached
                 $scope.search = function () {
                     var counter = 0;
+                    if (typeof $scope.options === 'function') {
+                        return function (item){
+                            return true;
+                        }
+                    }
                     return function (item) {
                         if (counter > $scope.searchLimit) {
                             return false;
@@ -242,9 +249,9 @@
 
 }());
 
-angular.module('btorfs.multiselect.templates', ['multiselect.html']);
+angular.module("btorfs.multiselect.templates", ["multiselect.html"]);
 
-angular.module("multiselect.html", []).run(["$templateCache", function ($templateCache) {
+angular.module("multiselect.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("multiselect.html",
     "<div class=\"btn-group\" style=\"width: 100%\">\n" +
     "    <button type=\"button\" class=\"btn dropdown-toggle\" ng-class=\"classesBtn\" ng-click=\"toggleDropdown()\" ng-disabled=\"disabled\" style=\"white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis;\">\n" +
@@ -278,7 +285,7 @@ angular.module("multiselect.html", []).run(["$templateCache", function ($templat
     "        <li ng-show=\"showSearch\">\n" +
     "            <div class=\"dropdown-header\">\n" +
     "                <input type=\"text\" class=\"form-control input-sm\" style=\"width: 100%;\"\n" +
-    "                       ng-model=\"searchFilter\" placeholder=\"{{labels.search || 'Search...'}}\" ng-change=\"updateOptions()\"/>\n" +
+    "                       ng-model=\"searchFilter\" placeholder=\"{{labels.search || 'Search...'}}\" ng-change=\"updateOptions(searchFilter)\" debounce=\"250\"/>\n" +
     "            </div>\n" +
     "        </li>\n" +
     "\n" +

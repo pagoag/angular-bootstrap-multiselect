@@ -29,5 +29,6 @@ exports.config = {
         'chromeOptions': {
             'args': ['show-fps-counter=true']
         }
-    }]
+    }],
+    seleniumAddress: "http://localhost:4444/wd/hub"
 };
