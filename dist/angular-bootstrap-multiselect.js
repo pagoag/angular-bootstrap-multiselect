@@ -54,6 +54,11 @@
                     $scope.disabled = true;
                 }
 
+                $scope.$watch('options', function(newVal) {
+                    $scope.options = newVal;
+                    $scope.resolvedOptions = newVal;
+                    updateSelectionLists();
+                }, true);
 
                 var closeHandler = function (event) {
                     if (!$element[0].contains(event.target)) {
