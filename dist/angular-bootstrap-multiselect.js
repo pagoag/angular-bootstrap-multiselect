@@ -101,6 +101,7 @@
 
                 $ngModelCtrl.$render = function () {
                     $scope.updateOptions();
+                    updateSelectionLists();
                 };
 
                 $ngModelCtrl.$viewChangeListeners.push(function () {
