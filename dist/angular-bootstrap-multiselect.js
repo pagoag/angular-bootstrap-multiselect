@@ -77,6 +77,10 @@
                         }
                         $scope.unselectedOptions = angular.copy($scope.resolvedOptions);
                     } else {
+                        if($scope.resolvedOptions == undefined) {
+                            return false;
+                        }
+                        
                         $scope.selectedOptions = $scope.resolvedOptions.filter(function (el) {
                             var id = $scope.getId(el);
                             for (var i = 0; i < $ngModelCtrl.$viewValue.length; i++) {
