@@ -20,6 +20,8 @@
                 options: '=',
                 displayProp: '@',
                 idProp: '@',
+                iconProp: '@',
+                iconColorProp: '@',
                 searchLimit: '=?',
                 selectionLimit: '=?',
                 showSelectAll: '=?',
@@ -30,13 +32,14 @@
                 labels: '=?',
                 classesBtn: '=?',
                 showTooltip: '=?',
-                placeholder: '@?'
+                placeholder: '@?',
+                isStackable: '=?'
             },
             require: 'ngModel',
             templateUrl: 'multiselect.html',
-            controller: ['$scope', function($scope) {
+            controller: ['$scope', function ($scope) {
                 if (angular.isUndefined($scope.classesBtn)) {
-                    $scope.classesBtn = ['btn-block','btn-default'];
+                    $scope.classesBtn = ['btn-block', 'btn-default'];
                 }
             }],
             link: function ($scope, $element, $attrs, $ngModelCtrl) {
@@ -54,22 +57,6 @@
                     $scope.disabled = true;
                 }
 
-                $scope.$watch('options', function(newVal) {
-                    $scope.options = newVal;
-                    $scope.resolvedOptions = newVal;
-                    updateSelectionLists();
-                }, true);
-
-                var closeHandler = function (event) {
-                    if (!$element[0].contains(event.target)) {
-                        $scope.$apply(function () {
-                            $scope.open = false;
-                        });
-                    }
-                };
-
-                $document.on('click', closeHandler);
-
                 var updateSelectionLists = function () {
                     if (!$ngModelCtrl.$viewValue) {
                         if ($scope.selectedOptions) {
@@ -77,10 +64,10 @@
                         }
                         $scope.unselectedOptions = angular.copy($scope.resolvedOptions);
                     } else {
-                        if($scope.resolvedOptions == undefined) {
+                        if ($scope.resolvedOptions == undefined) {
                             return false;
                         }
-                        
+
                         $scope.selectedOptions = $scope.resolvedOptions.filter(function (el) {
                             var id = $scope.getId(el);
                             for (var i = 0; i < $ngModelCtrl.$viewValue.length; i++) {
@@ -96,6 +83,22 @@
                         });
                     }
                 };
+
+                $scope.$watch('options', function (newVal) {
+                    $scope.options = newVal;
+                    $scope.resolvedOptions = newVal;
+                    updateSelectionLists();
+                }, true);
+
+                var closeHandler = function (event) {
+                    if (!$element[0].contains(event.target)) {
+                        $scope.$apply(function () {
+                            $scope.open = false;
+                        });
+                    }
+                };
+
+                $document.on('click', closeHandler);
 
                 $scope.toggleDropdown = function () {
                     $scope.open = !$scope.open;
@@ -121,7 +124,7 @@
                 };
 
                 var watcher = $scope.$watch('selectedOptions', function () {
-                    if ($scope.selectedOptions){
+                    if ($scope.selectedOptions) {
                         $ngModelCtrl.$setViewValue(angular.copy($scope.selectedOptions));
                     }
                 }, true);
@@ -205,6 +208,43 @@
                     }
                 };
 
+                $scope.getIcon = function (item) {
+                    if (angular.isString(item)) {
+                        return '';
+                    } else if (angular.isObject(item)) {
+                        if ($scope.iconProp) {
+                            return multiselect.getRecursiveProperty(item, $scope.iconProp);
+                        } else {
+                            $log.error('Multiselect: when using objects as model, a displayProp value is mandatory.');
+                            return '';
+                        }
+                    } else {
+                        return '';
+                    }
+                };
+
+                $scope.getIconColor = function (item) {
+                    if (angular.isString(item)) {
+                        return '';
+                    } else if (angular.isObject(item)) {
+                        if ($scope.iconColorProp) {
+                            return multiselect.getRecursiveProperty(item, $scope.iconColorProp);
+                        } else {
+                            $log.error('Multiselect: when using objects as model, a iconColorProp value is mandatory.');
+                            return '';
+                        }
+                    } else {
+                        return '';
+                    }
+                };
+
+                $scope.hasIcon = function (item) {
+                    if ($scope.iconProp) {
+                        return item.hasOwnProperty($scope.iconProp);
+                    }
+                    return false;
+                }
+
                 $scope.isSelected = function (item) {
                     if (!$scope.selectedOptions) {
                         return false;
@@ -234,7 +274,7 @@
                 $scope.search = function () {
                     var counter = 0;
                     if (typeof $scope.options === 'function') {
-                        return function (item){
+                        return function () {
                             return true;
                         }
                     }
@@ -304,6 +344,15 @@ angular.module("multiselect.html", []).run(["$templateCache", function($template
     "            ng-if=\"!isSelected(option)\"\n" +
     "            ng-class=\"{disabled : selectionLimit && selectedOptions.length >= selectionLimit}\">\n" +
     "            <a class=\"item-unselected\" href=\"\" title=\"{{showTooltip ? getDisplay(option) : ''}}\" ng-click=\"toggleItem(option); $event.stopPropagation()\" style=\"overflow-x: hidden;text-overflow: ellipsis\">\n" +
+    "                <span ng-if=\"hasIcon(option)\">\n" +
+    "                    <span class=\"fa-stack indicator-small\" ng-show=\"isStackable\">\n" +
+    "                        <i class=\"fa fa-square fa-stack-2x\" ng-class=\"getIconColor(option)\"></i>\n" +
+    "                        <i class=\"fa fa-stack-1x fa-inverse\" ng-class=\"getIcon(option)\"></i>\n" +
+    "                    </span>\n" +
+    "                    <span class=\"status-icon\" ng-hide=\"isStackable\">\n" +
+    "                        <i class=\"fa\" ng-class=\"[option.icon, option.class]\" tooltip-placement=\"top\" tooltip-append-to-body=\"true\" uib-tooltip=\"{{$ctrl.status}}\"></i>\n" +
+    "                    </span>\n" +
+    "                </span>\n" +
     "                {{getDisplay(option)}}\n" +
     "            </a>\n" +
     "        </li>\n" +

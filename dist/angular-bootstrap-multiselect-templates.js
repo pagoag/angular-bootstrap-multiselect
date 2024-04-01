@@ -43,6 +43,15 @@ angular.module("multiselect.html", []).run(["$templateCache", function($template
     "            ng-if=\"!isSelected(option)\"\n" +
     "            ng-class=\"{disabled : selectionLimit && selectedOptions.length >= selectionLimit}\">\n" +
     "            <a class=\"item-unselected\" href=\"\" title=\"{{showTooltip ? getDisplay(option) : ''}}\" ng-click=\"toggleItem(option); $event.stopPropagation()\" style=\"overflow-x: hidden;text-overflow: ellipsis\">\n" +
+    "                <span ng-if=\"hasIcon(option)\">\n" +
+    "                    <span class=\"fa-stack indicator-small\" ng-show=\"isStackable\">\n" +
+    "                        <i class=\"fa fa-square fa-stack-2x\" ng-class=\"getIconColor(option)\"></i>\n" +
+    "                        <i class=\"fa fa-stack-1x fa-inverse\" ng-class=\"getIcon(option)\"></i>\n" +
+    "                    </span>\n" +
+    "                    <span class=\"status-icon\" ng-hide=\"isStackable\">\n" +
+    "                        <i class=\"fa\" ng-class=\"[option.icon, option.class]\" tooltip-placement=\"top\" tooltip-append-to-body=\"true\" uib-tooltip=\"{{$ctrl.status}}\"></i>\n" +
+    "                    </span>\n" +
+    "                </span>\n" +
     "                {{getDisplay(option)}}\n" +
     "            </a>\n" +
     "        </li>\n" +
